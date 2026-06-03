@@ -1,0 +1,12 @@
+node_modules
+dist
+final_disposal
+dist.zip
+npm-debug.log
+Dockerfile
+.dockerignore
+.git
+.gitignore
+.DS_Store
+.vscode
+.idea
