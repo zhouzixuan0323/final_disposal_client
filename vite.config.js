@@ -13,6 +13,6 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: 'final_disposal'
+    outDir: 'final_disposal_client'
   }
 });
