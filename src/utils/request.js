@@ -2,8 +2,7 @@ import axios from "axios";
 // import store from "@/store";
 // import router from "@/router";
 
-// export const baseURL = "http://124.222.20.135:8081";
-export const baseURL = "http://localhost:8888";
+export const baseURL = import.meta.env.VITE_API_BASE_URL || "/api";
 
 
 // 发送携带token的请求
