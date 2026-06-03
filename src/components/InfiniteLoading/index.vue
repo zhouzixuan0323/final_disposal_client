@@ -10,8 +10,8 @@
 </template>
 
 <script>
-import {ref} from "@vue/runtime-core";
-import {useIntersectionObserver} from "@vueuse/core";
+import { useIntersectionObserver } from "@vueuse/core";
+import { ref } from "vue";
 
 export default {
   name: "index.vue",
