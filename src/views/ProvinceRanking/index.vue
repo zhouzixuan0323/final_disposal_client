@@ -60,16 +60,16 @@
 </template>
 
 <script>
-import * as THREE from "three";
 import * as echarts from 'echarts';
+import * as THREE from "three";
 // import {Geo} from 'three'
-import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
-import {geoMercator} from "d3-geo"
-import {onMounted, ref} from "vue";
+import { geoMercator } from "d3-geo";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { onMounted, ref } from "vue";
 
-import RightButtonLink from "../../components/RightButtonLink/index.vue"
+import RightButtonLink from "../../components/RightButtonLink/index.vue";
 
-import Loading from "../../components/Loading/index.vue"
+import Loading from "../../components/Loading/index.vue";
 
 export default {
   name: "index",
@@ -432,7 +432,7 @@ export default {
 
 <style scoped lang="less">
 .provinceRanking {
-  height: 929px;
+  height: 100vh;
   overflow: hidden;
 
   .provinceRanking-title {
