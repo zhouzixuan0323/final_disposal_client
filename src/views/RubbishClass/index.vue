@@ -3,9 +3,13 @@
     <div class="img">
       <img src="../../assets/images/environmental-protection.jpg" alt="">
     </div>
+    <div class="article-tools">
+      <a v-for="section in sections" :key="section.id" :href="`#${section.id}`">{{ section.title }}</a>
+      <button type="button" @click="scrollTop">返回顶部</button>
+    </div>
     <div class="text-content">
       <div class="text-context-container">
-        <div class="paragraph brief-introduction">
+        <div class="paragraph brief-introduction" id="intro">
           <div class="h1-box">
             <h1>垃圾分类</h1>
           </div>
@@ -20,7 +24,7 @@
           </p>
         </div>
 
-        <div class="paragraph cause">
+        <div class="paragraph cause" id="cause">
           <div class="h2-box">
             <h2>产生原因</h2>
           </div>
@@ -40,7 +44,7 @@
           </p>
         </div>
 
-        <div class="paragraph principle">
+        <div class="paragraph principle" id="principle">
           <div class="h2-box">
             <h2>分类原则</h2>
           </div>
@@ -66,7 +70,7 @@
           <p>垃圾分类回收说难不难，分而用之实为关键，因地制宜提供方便，自觉自治行为规范。</p>
         </div>
 
-        <div class="paragraph meaning">
+        <div class="paragraph meaning" id="meaning">
           <div class="h2-box">
             <h2>分类意义</h2>
           </div>
@@ -96,7 +100,7 @@
           </p>
         </div>
 
-        <div class="paragraph variety">
+        <div class="paragraph variety" id="variety">
           <div class="h2-box">
             <h2>垃圾种类</h2>
           </div>
@@ -147,7 +151,7 @@
           </div>
         </div>
 
-        <div class="paragraph  main-problems">
+        <div class="paragraph  main-problems" id="problems">
           <div class="h2-box">
             <h2>主要问题</h2>
           </div>
@@ -184,7 +188,7 @@
           </p>
         </div>
 
-        <div class="paragraph solution">
+        <div class="paragraph solution" id="solution">
           <div class="h2-box">
             <h2>解决方法</h2>
           </div>
@@ -216,7 +220,7 @@
           </p>
         </div>
 
-        <div class="paragraph wrong-region">
+        <div class="paragraph wrong-region" id="mistakes">
           <div class="h2-box">
             <h2>垃圾分类小误区</h2>
           </div>
@@ -274,6 +278,21 @@ export default {
     RightButtonLink,
   },
   setup() {
+    const sections = [
+      {id: "intro", title: "简介"},
+      {id: "cause", title: "原因"},
+      {id: "principle", title: "原则"},
+      {id: "meaning", title: "意义"},
+      {id: "variety", title: "种类"},
+      {id: "problems", title: "问题"},
+      {id: "solution", title: "方法"},
+      {id: "mistakes", title: "误区"},
+    ];
+
+    function scrollTop() {
+      window.scrollTo({top: 0, behavior: "smooth"});
+    }
+
     let rightButtonActiveIndex = ref(false);
 
     let rightButtons = [
@@ -304,6 +323,8 @@ export default {
       handleHideActiveClass,
       rightButtons,
       rightButtonActiveIndex,
+      sections,
+      scrollTop
     }
   }
 }
@@ -315,6 +336,36 @@ export default {
   height: 100%;
   background-color: #f5f5f5;
   overflow-x: hidden;
+  scroll-behavior: smooth;
+
+  .article-tools {
+    position: fixed;
+    left: 24px;
+    top: 120px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 96px;
+
+    a,
+    button {
+      height: 32px;
+      border: 1px solid #d7e7ef;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.95);
+      color: #006699;
+      text-align: center;
+      text-decoration: none;
+      line-height: 32px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    button {
+      font-family: inherit;
+    }
+  }
 
   .img img {
     object-fit: contain;
@@ -409,6 +460,35 @@ export default {
     img {
       width: 300px;
       height: 200px;
+    }
+  }
+}
+
+@media (max-width: 1200px) {
+  .rubbish-class {
+    .article-tools {
+      position: sticky;
+      left: 0;
+      top: 0;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px 12px;
+      background: #f5f5f5;
+
+      a,
+      button {
+        flex: 0 0 auto;
+        padding: 0 12px;
+      }
+    }
+
+    .text-content .text-context-container {
+      top: 0;
+      width: calc(100% - 40px);
+      box-sizing: border-box;
     }
   }
 }

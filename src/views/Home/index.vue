@@ -1,9 +1,9 @@
 <template>
-  <Loading v-if="!isLoadingEnd"></Loading>
+  <Loading v-if="!isLoadingEnd" :text="loadingText"></Loading>
   <div class="home-page" id="home-page">
     <div id="canvas-box"></div>
     <Transition name="detail-box" mode="out-in">
-      <div class="rubbish-detail" v-if="isShowDetailBox">
+      <div class="rubbish-detail" v-if="isShowDetailBox" @click.self="closeDetailBox">
         <RubbishDetail :currentType="currentType" @closeDetailBox="closeDetailBox" :trashCanColor="trashCanColor"
                        :rubbishName="rubbishName"/>
       </div>
@@ -26,19 +26,19 @@
 
 <script>
 import * as THREE from "three";
-import {Mesh, MeshLambertMaterial, PlaneGeometry, Raycaster, Vector2} from "three";
+import { Raycaster, Vector2 } from "three";
 
 // obj加载模型方法
-import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
-import {nextTick, onMounted, onUnmounted, ref} from "vue";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { onMounted, onUnmounted, ref } from "vue";
 // import "../../../public/models/trash_can/scene.gltf";
 // 引入用户年龄饼图组件
 // import UserAgeDistribute from "./components/userAgeDistribute/index.vue";
+import RightButtonLink from "../../components/RightButtonLink/index.vue";
 import RubbishDetail from "../../components/RubbishDetail/index.vue";
-import SearchRubbish from "../../components/SearchRubbish/index.vue"
-import RightButtonLink from "../../components/RightButtonLink/index.vue"
+import SearchRubbish from "../../components/SearchRubbish/index.vue";
 // import Stats from "three/examples/jsm/libs/stats.module";
-import Loading from "../../components/Loading/index.vue"
+import Loading from "../../components/Loading/index.vue";
 
 export default {
   name: "Home",
@@ -192,19 +192,23 @@ export default {
       // 加载模型
       loader.load("/models/trash_can_Green/untitleda.gltf", function (gltf) {
         loadTrashCan1(gltf, cubeMaterial1);
-      });
+        markModelLoaded();
+      }, undefined, markModelFailed);
       // 加载模型
       loader.load("/models/trash_can_Black/untitled.gltf", function (gltf) {
         loadTrashCan2(gltf, cubeMaterial1);
-      });
+        markModelLoaded();
+      }, undefined, markModelFailed);
       // 加载模型
       loader.load("/models/trash_can_Blue/untitled.gltf", function (gltf) {
         loadTrashCan3(gltf, cubeMaterial1);
-      });
+        markModelLoaded();
+      }, undefined, markModelFailed);
       // 加载模型
       loader.load("/models/trash_can_Grey/untitled.gltf", function (gltf) {
         loadTrashCan4(gltf, cubeMaterial1);
-      });
+        markModelLoaded();
+      }, undefined, markModelFailed);
 
       // 添加控件
       // - 第一个参数相机
@@ -217,6 +221,7 @@ export default {
 
       renderer.domElement.addEventListener("click", onRaycasterClick);
       renderer.domElement.addEventListener('mousemove', onRaycasterMouseMove)
+      document.addEventListener("keydown", onEscapeClose);
 
       document.getElementById("canvas-box").innerHTML = '';
       document.getElementById("canvas-box").appendChild(renderer.domElement);
@@ -413,6 +418,21 @@ export default {
       });
 
       scene.add(model);
+    }
+
+    const loadedModelCount = ref(0);
+    const loadingText = ref("正在加载 3D 模型 0/4");
+
+    function markModelLoaded() {
+      loadedModelCount.value += 1;
+      loadingText.value = `正在加载 3D 模型 ${loadedModelCount.value}/4`;
+      if (loadedModelCount.value >= 4) {
+        isLoadingEnd.value = true;
+      }
+    }
+
+    function markModelFailed() {
+      loadingText.value = "部分 3D 模型加载失败，正在进入降级显示";
       isLoadingEnd.value = true;
     }
 
@@ -484,6 +504,12 @@ export default {
       // 清空当前选中状态
       currentType.value = '';
       isActive = false;
+    }
+
+    function onEscapeClose(event) {
+      if (event.code === "Escape" && isShowDetailBox.value) {
+        closeDetailBox();
+      }
     }
 
     function openDetailBox(value) {
@@ -650,6 +676,7 @@ export default {
     onUnmounted(() => {
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
       document.removeEventListener("mousemove", onDocumentMouseMove, false);
+      document.removeEventListener("keydown", onEscapeClose);
       window.removeEventListener("resize", onWindowResize);
       if (tooltipMouseMove) window.removeEventListener("mousemove", tooltipMouseMove, false);
 
@@ -690,7 +717,8 @@ export default {
       handleHideActiveClass,
       rightButtonActiveIndex,
       rightButtons,
-      isLoadingEnd
+      isLoadingEnd,
+      loadingText
     }
   },
 };
@@ -754,6 +782,37 @@ export default {
     position: absolute;
     right: 300px;
     top: 20px;
+  }
+
+  .home-guide {
+    position: absolute;
+    left: 50%;
+    bottom: 32px;
+    transform: translateX(-50%);
+    padding: 12px 18px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #006699;
+    font-size: 16px;
+    user-select: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .home-page {
+    .search {
+      left: 16px;
+      right: 16px;
+      top: 18px;
+    }
+
+    .home-guide {
+      width: calc(100vw - 48px);
+      bottom: 24px;
+      box-sizing: border-box;
+      text-align: center;
+      line-height: 22px;
+    }
   }
 }
 </style>

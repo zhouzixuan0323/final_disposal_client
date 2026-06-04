@@ -1,5 +1,5 @@
 <template>
-  <Loading v-if="!isLoadingEnd"></Loading>
+  <Loading v-if="!isLoadingEnd" text="正在生成 3D 地图..."></Loading>
   <div class="provinceRanking">
     <div class="provinceRanking-title">
       <h2>
@@ -40,12 +40,17 @@
       </div>
       <div>
         <div class="color level7"></div>
-        <span> >= 200 </span>
+        <span> &lt; 200 </span>
       </div>
       <div>
         单位：万吨
       </div>
+      <div class="source">
+        数据口径：2021年城市生活垃圾产生量
+      </div>
     </div>
+
+    <button class="reset-view" type="button" @click="resetMapView">重置视角</button>
 
     <div class="histogram-canvas-container">
       <canvas id="histogram-canvas" width="400" height="400"></canvas>
@@ -91,6 +96,7 @@ export default {
     let animationFrameId;
     let mouseMoveHandler;
     let histogramChart;
+    let rubbishRankMap = {};
 
     function init() {
       // 第一步新建一个场景
@@ -120,6 +126,13 @@ export default {
     function generateGeometry(jsondata) {
       // 初始化一个地图对象
       map = new THREE.Object3D();
+      rubbishRankMap = jsondata.features
+          .filter((feature) => feature.properties?.name)
+          .sort((a, b) => b.properties.rubbishData - a.properties.rubbishData)
+          .reduce((rankMap, feature, index) => {
+            rankMap[feature.properties.name] = index + 1;
+            return rankMap;
+          }, {});
       // 墨卡托投影转换
       const projection = geoMercator()
           .center([104.0, 37.5])
@@ -289,12 +302,19 @@ export default {
       if (lastPick && lastPick.object.parent.properties.name !== '') {
         const properties = lastPick.object.parent.properties;
 
-        tooltip.textContent = `${properties.name} \n ${properties.rubbishData}万吨`;
+        tooltip.textContent = `${properties.name}\n产量：${properties.rubbishData}万吨\n全国排名：第${rubbishRankMap[properties.name] || "--"}名`;
 
         tooltip.style.visibility = "visible";
       } else {
         tooltip.style.visibility = "hidden";
       }
+    }
+
+    function resetMapView() {
+      camera.position.set(0, 0, 120);
+      camera.lookAt(scene.position);
+      controller?.target.set(0, 0, 0);
+      controller?.update();
     }
 
     //窗口变动触发的函数
@@ -454,7 +474,8 @@ export default {
       handleHideActiveClass,
       rightButtons,
       rightButtonActiveIndex,
-      isLoadingEnd
+      isLoadingEnd,
+      resetMapView
     };
   }
 }
@@ -493,6 +514,8 @@ export default {
     border-radius: 2px;
     visibility: hidden;
     user-select: none;
+    white-space: pre-line;
+    line-height: 20px;
   }
 
   .colorRanking {
@@ -503,6 +526,8 @@ export default {
     padding: 10px 20px;
     user-select: none;
     line-height: 25px;
+    background: rgba(0, 0, 0, 0.28);
+    border-radius: 8px 0 0 8px;
 
     .color {
       display: inline-block;
@@ -539,12 +564,33 @@ export default {
     .level7 {
       background-color: #323a97;
     }
+
+    .source {
+      margin-top: 8px;
+      max-width: 180px;
+      color: rgba(255, 255, 255, 0.82);
+      font-size: 13px;
+      line-height: 18px;
+    }
   }
 
   .histogram-canvas-container {
     position: absolute;
     left: 0;
     top: 0;
+  }
+
+  .reset-view {
+    position: absolute;
+    left: 24px;
+    bottom: 28px;
+    height: 40px;
+    padding: 0 18px;
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #006699;
+    cursor: pointer;
   }
 }
 </style>

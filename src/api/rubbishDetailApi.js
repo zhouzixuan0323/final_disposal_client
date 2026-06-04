@@ -4,8 +4,8 @@ export function getRubbishDetailData({rubbishType, page, pageSize}) {
     return requestWithoutToken('/rubbish/list','get', {rubbishType, page, pageSize})
 }
 
-export function getSearchData({rubbishType, page, pageSize, rubbishName}) {
-    return requestWithoutToken('/rubbish/search','get', {rubbishType, page, pageSize, rubbishName})
+export function getSearchData({page, pageSize, rubbishName}) {
+    return requestWithoutToken('/rubbish/search','get', {page, pageSize, rubbishName})
 }
 
 export function getRubbishType(id) {

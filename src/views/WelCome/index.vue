@@ -1,21 +1,19 @@
 <template>
   <div class="welcome-page">
     <div id="welcome-canvas-box"></div>
-    <div class="welcome-text" ref="breath">
-      按回车键进入首页...
-    </div>
+    <button class="enter-button" type="button" @click="goHome">点击或回车进入首页</button>
   </div>
 
 </template>
 
 <script>
 import * as THREE from "three";
-import {onMounted, onUnmounted} from "vue";
-import {FontLoader} from "three/examples/jsm/loaders/FontLoader.js"
-import {useRouter} from "vue-router";
-import {Mesh, PlaneBufferGeometry} from "three";
-import {TextGeometry} from "three/examples/jsm/geometries/TextGeometry.js"
+import { Mesh, PlaneBufferGeometry } from "three";
+import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js";
+import { FontLoader } from "three/examples/jsm/loaders/FontLoader.js";
 import { Reflector } from 'three/examples/jsm/objects/Reflector.js';
+import { onMounted, onUnmounted } from "vue";
+import { useRouter } from "vue-router";
 
 export default {
   name: "WelCome",
@@ -320,7 +318,11 @@ export default {
 
     function handleGoHome(e) {
       // console.log(e)
-      if(e.code === 'Enter') router.push('/home')
+      if(e.code === 'Enter') goHome();
+    }
+
+    function goHome() {
+      router.push('/home');
     }
 
     onMounted(() => {
@@ -354,7 +356,8 @@ export default {
     })
 
     return {
-      handleGoHome
+      handleGoHome,
+      goHome
     }
   }
 }
@@ -364,15 +367,24 @@ export default {
 .welcome-page {
   position: relative;
 
-  .welcome-text {
+  .enter-button {
     position: absolute;
-    width: 100%;
-    left: 0;
-    bottom: 20px;
-    font-size: 30px;
-    text-align: center;
-    color: #006699;
-    user-select: none;
+    left: 50%;
+    bottom: 48px;
+    transform: translateX(-50%);
+    min-width: 240px;
+    height: 44px;
+    border: 1px solid #006699;
+    border-radius: 22px;
+    background: #006699;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0, 102, 153, 0.24);
+  }
+
+  .enter-button:hover {
+    background: #00547d;
   }
 }
 </style>

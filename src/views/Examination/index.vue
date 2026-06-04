@@ -12,20 +12,23 @@
 
       <!--   题目   -->
       <div class="question" v-else-if="questionList && isStartingWork">
+        <div class="progress">
+          <div class="progress-bar" :style="{width: `${((questionIndex + 1) / questionList.length) * 100}%`}"></div>
+        </div>
         <!--   当前是第几题   -->
         <div class="qid">{{ questionIndex + 1 }}/{{ questionList.length }}</div>
         <div class="question-title">{{ questionList[questionIndex].title }}</div>
         <div class="answer">
-          <div class="answer-item optionA" @click="handleClickOption('A', questionList[questionIndex].optionA)">
+          <div class="answer-item optionA" :class="getOptionClass('A')" @click="handleClickOption('A', questionList[questionIndex].optionA)">
             {{ questionList[questionIndex].optionA }}
           </div>
-          <div class="answer-item optionB" @click="handleClickOption('B', questionList[questionIndex].optionB)">
+          <div class="answer-item optionB" :class="getOptionClass('B')" @click="handleClickOption('B', questionList[questionIndex].optionB)">
             {{ questionList[questionIndex].optionB }}
           </div>
-          <div class="answer-item optionC" @click="handleClickOption('C', questionList[questionIndex].optionC)">
+          <div class="answer-item optionC" :class="getOptionClass('C')" @click="handleClickOption('C', questionList[questionIndex].optionC)">
             {{ questionList[questionIndex].optionC }}
           </div>
-          <div class="answer-item optionD" @click="handleClickOption('D', questionList[questionIndex].optionD)">
+          <div class="answer-item optionD" :class="getOptionClass('D')" @click="handleClickOption('D', questionList[questionIndex].optionD)">
             {{ questionList[questionIndex].optionD }}
           </div>
         </div>
@@ -33,6 +36,7 @@
 
       <!--   注册框   -->
       <div class="register" v-if="isShowRegister">
+        <div class="register-title">填写昵称后开始答题</div>
         <form id="addUser" ref="form">
           <div class="register-username">
             <span class="username">昵称：</span><input type="text" name="username">
@@ -212,6 +216,8 @@ export default {
 
     // 分数
     let score = ref(0)
+    let isAnswerLocked = ref(false);
+    let answerFeedback = ref(null);
 
     // 显示分数框
     let isShowScoreBox = ref(false)
@@ -236,27 +242,29 @@ export default {
 
     // 选择答案
     function handleClickOption(option, optionText) {
+      if (isAnswerLocked.value) return;
+
+      isAnswerLocked.value = true;
       const isLastQuestion = questionIndex.value === questionList.value.length - 1;
+      const question = questionList.value[questionIndex.value];
+      const isCorrect = option === question.daan;
+      answerFeedback.value = {
+        selected: option,
+        correct: question.daan,
+      };
 
-      if (isLastQuestion) {
+      if (isCorrect) {
+        score.value += 10;
+        question.daanText = question[`option${option}`]
+      } else {
+        question.wrongText = optionText;
+        question.daanText = question[`option${question.daan}`]
+      }
+
+      setTimeout(() => {
+        if (isLastQuestion) {
         // 到最后一题了, 到最后一题后还需要在执行一次保存答案，不然最后一题不会记录，但是不能让索引继续往上加
-        if (option !== questionList.value[questionIndex.value].daan) {
-          // 答错
-          // 正确答案选项
-          let daan = questionList.value[questionIndex.value].daan;
-          // 记录错误答案
-          // 记录正确答案
-          questionList.value[questionIndex.value].wrongText = optionText;
-          questionList.value[questionIndex.value].daanText = questionList.value[questionIndex.value][`option${daan}`]
-        } else {
-          // 答对
-          // 分数+10
-          score.value += 10;
-          questionList.value[questionIndex.value].daanText = questionList.value[questionIndex.value][`option${option}`]
-        }
-
         // 最后一题记录完成后显示得分情况，并将用户分数同步到数据库
-        // 👦
         // 弹出得分框
         isShowScoreBox.value = true;
         // 隐藏答题框，并且显示开始答题按钮
@@ -282,23 +290,18 @@ export default {
 
 
       } else {
-        // 还没到最后一题
-        if (option !== questionList.value[questionIndex.value].daan) {
-          // 答错
-          // 正确答案选项
-          let daan = questionList.value[questionIndex.value].daan;
-          // 记录错误答案
-          // 记录正确答案
-          questionList.value[questionIndex.value].wrongText = optionText;
-          questionList.value[questionIndex.value].daanText = questionList.value[questionIndex.value][`option${daan}`]
-        } else {
-          // 答对
-          // 分数+10
-          score.value += 10;
-          questionList.value[questionIndex.value].daanText = questionList.value[questionIndex.value][`option${option}`]
-        }
         questionIndex.value = questionIndex.value + 1;
       }
+        answerFeedback.value = null;
+        isAnswerLocked.value = false;
+      }, 500);
+    }
+
+    function getOptionClass(option) {
+      if (!answerFeedback.value) return "";
+      if (option === answerFeedback.value.correct) return "correct";
+      if (option === answerFeedback.value.selected) return "wrong";
+      return "disabled";
     }
 
 
@@ -372,6 +375,7 @@ export default {
       handleStartingToWork,
       handleAddUser,
       handleClickOption,
+      getOptionClass,
       isShowRegister,
       form,
       isStartingWork,
@@ -390,7 +394,9 @@ export default {
       rightButtons,
       rightButtonActiveIndex,
       handleShowActiveClass,
-      handleHideActiveClass
+      handleHideActiveClass,
+      isAnswerLocked,
+      answerFeedback
     }
   }
 }
@@ -413,6 +419,22 @@ function getStoredUserInfo() {
 
   .question {
     margin-top: 100px;
+
+    .progress {
+      width: 420px;
+      height: 10px;
+      margin: 0 auto 36px;
+      border-radius: 999px;
+      background: #e7eef3;
+      overflow: hidden;
+
+      .progress-bar {
+        height: 100%;
+        border-radius: 999px;
+        background: #006699;
+        transition: width 0.25s ease;
+      }
+    }
 
     .question-title {
       font-size: 26px;
@@ -447,6 +469,29 @@ function getStoredUserInfo() {
         text-align: center;
         cursor: pointer;
         user-select: none;
+        transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+      }
+
+      .answer-item:hover {
+        border-color: #006699;
+        color: #006699;
+      }
+
+      .answer-item.correct {
+        background-color: #67c23a;
+        border-color: #67c23a;
+        color: #fff;
+      }
+
+      .answer-item.wrong {
+        background-color: #f56c6c;
+        border-color: #f56c6c;
+        color: #fff;
+      }
+
+      .answer-item.disabled {
+        opacity: 0.45;
+        cursor: default;
       }
     }
   }
@@ -484,6 +529,14 @@ function getStoredUserInfo() {
     border: 2px solid #000;
     padding: 20px 120px;
     box-sizing: border-box;
+
+    .register-title {
+      margin-bottom: 24px;
+      font-size: 22px;
+      font-weight: bolder;
+      text-align: center;
+      color: #006699;
+    }
 
     .register-username {
       margin-bottom: 30px;

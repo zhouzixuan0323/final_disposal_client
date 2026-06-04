@@ -16,12 +16,19 @@
         <div class="roller"></div>
       </div>
     </div>
+    <div class="loader-text">{{ text }}</div>
   </div>
 </template>
 
 <script>
 export default {
-  name: "index"
+  name: "index",
+  props: {
+    text: {
+      type: String,
+      default: "正在加载资源..."
+    }
+  }
 }
 </script>
 
@@ -43,6 +50,17 @@ export default {
   margin: -50px 0 0 -74px;
   left: 50%;
   top: 60%;
+}
+
+.loader-text {
+  position: absolute;
+  left: 0;
+  top: calc(60% + 70px);
+  width: 100%;
+  color: #07364f;
+  font-size: 18px;
+  text-align: center;
+  user-select: none;
 }
 
 .loader {

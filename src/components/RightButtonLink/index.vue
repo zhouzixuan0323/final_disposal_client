@@ -1,5 +1,5 @@
 <template>
-  <div class="right-button-link">
+  <div class="right-button-link" :class="{current: isCurrent}">
     <RouterLink :to="`${to}`">
       <slot></slot>
     </RouterLink>
@@ -7,6 +7,9 @@
 </template>
 
 <script>
+import {computed} from "vue";
+import {useRoute} from "vue-router";
+
 export default {
   name: "index",
   props: {
@@ -16,6 +19,14 @@ export default {
     },
     to: {
       type: String
+    }
+  },
+  setup(props) {
+    const route = useRoute();
+    const isCurrent = computed(() => route.path === props.to);
+
+    return {
+      isCurrent
     }
   }
 }
@@ -52,5 +63,38 @@ export default {
 }
 .right-button-link.active {
   margin-right: 0;
+}
+.right-button-link.current {
+  margin-right: 0;
+  background-color: #006699;
+  border-color: #006699;
+
+  a {
+    color: #fff;
+  }
+}
+
+@media (max-width: 768px) {
+  .right-button-link {
+    right: 12px;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    margin-right: 0;
+    border-radius: 50%;
+    overflow: hidden;
+
+    a {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+      justify-content: center;
+      padding: 0 8px;
+      box-sizing: border-box;
+      font-size: 12px;
+      line-height: 16px;
+    }
+  }
 }
 </style>

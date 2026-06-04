@@ -18,10 +18,14 @@
       <li @click="handleShowPopUpBox(rubbishItem.rid)" class="item" v-for="rubbishItem in rubbishData?.items" :key="rubbishItem.rid">{{ rubbishItem.rname }}</li>
     </ul>
 
+    <div class="empty-result" v-if="isFinished && rubbishData?.items?.length === 0">
+      没有找到相关垃圾，试试纸巾、电池、苹果核这类关键词
+    </div>
+
     <InfiniteLoading @infinite="loadMore" :isLoading="isLoading" :isFinished="isFinished"></InfiniteLoading>
 
     <Transition name="pop-up-box">
-      <div class="pop-up-box" v-if="showPopUpBox && rubbishId">
+      <div class="pop-up-box" v-if="showPopUpBox && rubbishId" @click.self="handleHidePopUpBox">
         <PopUpBox @handleHidePopUpBox="handleHidePopUpBox" :currentType="currentType" :rubbishId="rubbishId"></PopUpBox>
       </div>
     </Transition>
@@ -115,7 +119,11 @@ function useGetRubbishData(props) {
   function getData(reqParams) {
     isLoading.value = true;
     if (props.currentType === '搜索') {
-      getSearchData({...reqParams, rubbishName:props.rubbishName}).then(({data}) => {
+      getSearchData({
+        page: reqParams.page,
+        pageSize: reqParams.pageSize,
+        rubbishName: props.rubbishName
+      }).then(({data}) => {
         isLoading.value = false;
 
         if(reqParams.page === 0) {
@@ -263,6 +271,18 @@ function useGetRubbishData(props) {
       background-color: red;
       color: #fff;
     }
+  }
+
+  .empty-result {
+    margin: 80px auto 0;
+    width: min(680px, calc(100% - 40px));
+    padding: 24px;
+    border: 1px dashed #999;
+    border-radius: 8px;
+    color: #333;
+    text-align: center;
+    line-height: 24px;
+    background-color: #f7f7f7;
   }
 
   /* info弹出框 */
