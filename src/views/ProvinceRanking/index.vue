@@ -56,7 +56,7 @@
       <canvas id="histogram-canvas" width="400" height="400"></canvas>
     </div>
 
-    <RightButtonLink v-for="(item, index) in rightButtons" :key="index" :style="{top: index * 100 + 100 + 'px'}"
+    <RightButtonLink v-for="(item, index) in rightButtons" :key="index" :style="{top: index * 60 + 100 + 'px'}"
                      :class="[rightButtonActiveIndex === index ? 'active':'']"
                      @mouseenter="handleShowActiveClass(index)" @mouseleave="handleHideActiveClass" :to="item.path">
       {{ item.text }}
@@ -65,9 +65,9 @@
 </template>
 
 <script>
-import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
 import { GridComponent, TitleComponent } from 'echarts/components';
+import * as echarts from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 import * as THREE from "three";
 // import {Geo} from 'three'
@@ -485,6 +485,9 @@ export default {
 .provinceRanking {
   height: 100vh;
   overflow: hidden;
+  background:
+      radial-gradient(circle at 18% 18%, rgba(115, 224, 193, 0.14), transparent 28%),
+      linear-gradient(145deg, #071311, #0a1816);
 
   .provinceRanking-title {
     position: absolute;
@@ -492,12 +495,18 @@ export default {
     top: 0;
     transform: translate(-50%, 0);
     user-select: none;
-    padding: 10px 0;
+    padding: 16px 24px;
+    border: 1px solid var(--app-border);
+    border-radius: 999px;
+    background: rgba(8, 21, 18, 0.58);
+    backdrop-filter: blur(18px);
+    box-shadow: 0 16px 45px rgba(0, 0, 0, 0.16);
   }
 
   .provinceRanking-title h2 {
-    color: #fff;
-    font-size: 25px;
+    color: var(--app-text-inverse);
+    font-size: 18px;
+    font-weight: 750;
   }
 
   .map-canvas-container {
@@ -509,9 +518,11 @@ export default {
   #tooltip {
     position: fixed;
     z-index: 2;
-    background: white;
-    padding: 10px;
-    border-radius: 2px;
+    border: 1px solid var(--app-border);
+    background: rgba(8, 21, 18, 0.78);
+    color: var(--app-text-inverse);
+    padding: 12px 14px;
+    border-radius: 14px;
     visibility: hidden;
     user-select: none;
     white-space: pre-line;
@@ -526,8 +537,10 @@ export default {
     padding: 10px 20px;
     user-select: none;
     line-height: 25px;
-    background: rgba(0, 0, 0, 0.28);
-    border-radius: 8px 0 0 8px;
+    border: 1px solid var(--app-border);
+    background: rgba(8, 21, 18, 0.62);
+    border-radius: 18px 0 0 18px;
+    backdrop-filter: blur(18px);
 
     .color {
       display: inline-block;
@@ -588,9 +601,11 @@ export default {
     padding: 0 18px;
     border: 1px solid rgba(255, 255, 255, 0.72);
     border-radius: 20px;
-    background: rgba(255, 255, 255, 0.9);
-    color: #006699;
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--app-text);
+    font-weight: 750;
     cursor: pointer;
+    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.16);
   }
 }
 </style>

@@ -43,10 +43,14 @@
           </div>
           <div class="register-gender">
             <span class="gender">性别：</span>
-            <label for="man" class="man">👦</label>
-            <input type="radio" name="gender" id="man" value="0" checked>
-            <label for="woman" class="woman">👧</label>
-            <input type="radio" name="gender" id="woman" value="1">
+            <label class="gender-option">
+              <input type="radio" name="gender" value="0" checked>
+              <span>男生</span>
+            </label>
+            <label class="gender-option">
+              <input type="radio" name="gender" value="1">
+              <span>女生</span>
+            </label>
           </div>
 
         </form>
@@ -98,7 +102,7 @@
       </div>
 
       <div v-if="!isStartingWork">
-        <RightButtonLink v-for="(item, index) in rightButtons" :key="index" :style="{top: index * 100 + 100 + 'px'}"
+        <RightButtonLink v-for="(item, index) in rightButtons" :key="index" :style="{top: index * 60 + 100 + 'px'}"
                          :class="[rightButtonActiveIndex === index ? 'active':'']"
                          @mouseenter="handleShowActiveClass(index)" @mouseleave="handleHideActiveClass" :to="item.path">
           {{ item.text }}
@@ -109,7 +113,7 @@
 </template>
 
 <script>
-import {computed, onMounted, ref} from "vue";
+import { computed, onMounted, ref } from "vue";
 // 引入api
 import {
   addRankingData,
@@ -119,10 +123,10 @@ import {
   getRankingUser
 } from "../../api/ExaminationApi";
 // 引入生成随机不重复ID的方法
-import {GenNonDuplicateID} from "../../assets/js/randomId"
+import { GenNonDuplicateID } from "../../assets/js/randomId";
 
-import RightButtonLink from "../../components/RightButtonLink/index.vue"
-import {Message} from "../../components/library/Message";
+import RightButtonLink from "../../components/RightButtonLink/index.vue";
+import { Message } from "../../components/library/Message";
 
 export default {
   name: "index",
@@ -552,35 +556,52 @@ function getStoredUserInfo() {
     }
 
     .register-gender {
+      display: flex;
+      align-items: center;
+      gap: 10px;
 
       .gender {
         font-size: 20px;
         font-weight: bolder;
       }
 
-      .man,
-      .woman {
-        padding: 3px 10px;
-        background-color: #4F9CEE;
-        border-radius: 4px;
-        font-size: 20px;
+      .gender-option {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 72px;
+        height: 36px;
+        border: 1px solid rgba(8, 31, 27, 0.14);
+        border-radius: 999px;
+        background: #f8faf9;
+        color: var(--app-text-soft);
+        font-size: 15px;
+        font-weight: 750;
+        cursor: pointer;
+        transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+
+        input {
+          position: absolute;
+          inset: 0;
+          opacity: 0;
+          cursor: pointer;
+        }
       }
 
-      .woman {
-        background-color: hotpink;
-      }
-
-      #man {
-        margin-right: 20px;
+      .gender-option:has(input:checked) {
+        border-color: transparent;
+        background: linear-gradient(135deg, var(--app-accent), var(--app-accent-blue));
+        color: #061512;
+        box-shadow: 0 10px 26px rgba(31, 182, 146, 0.2);
       }
     }
 
     .buttons {
       position: absolute;
       right: 50%;
-      bottom: 0;
+      bottom: 30px;
       transform: translate(50%);
-      padding: 40px 20px;
 
       .affirm {
         padding: 10px 40px;
@@ -767,6 +788,175 @@ function getStoredUserInfo() {
           }
         }
       }
+    }
+  }
+  /* Modern visual layer */
+  min-height: 100vh;
+  width: 100%;
+  padding: 36px 24px 80px;
+  background:
+      radial-gradient(circle at 20% 12%, rgba(115, 224, 193, 0.16), transparent 30%),
+      radial-gradient(circle at 82% 8%, rgba(125, 183, 255, 0.16), transparent 32%),
+      #f5f8f6;
+
+  .examination-title h1 {
+    color: var(--app-text);
+    font-size: 34px;
+    font-weight: 850;
+  }
+
+  .start {
+    width: 172px;
+    height: 172px;
+    border: 0;
+    background: linear-gradient(135deg, var(--app-accent), var(--app-accent-blue));
+    box-shadow: 0 28px 70px rgba(31, 182, 146, 0.28);
+    color: #061512;
+    font-weight: 800;
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+  }
+
+  .start:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 34px 80px rgba(31, 182, 146, 0.34);
+  }
+
+  .question {
+    width: min(820px, 100%);
+    margin: 80px auto 0;
+    padding: 34px;
+    border: 1px solid var(--app-border-dark);
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 24px 70px rgba(8, 31, 27, 0.12);
+
+    .progress {
+      background: #e6eeeb;
+
+      .progress-bar {
+        background: linear-gradient(135deg, var(--app-accent-strong), var(--app-accent-blue));
+      }
+    }
+
+    .qid {
+      right: 34px;
+      top: 120px;
+      padding: 10px 18px;
+      border-radius: 999px;
+      background: #eef8f5;
+      color: var(--app-accent-strong);
+      font-weight: 800;
+    }
+
+    .question-title {
+      color: var(--app-text);
+      font-weight: 800;
+      line-height: 36px;
+    }
+
+    .answer {
+      gap: 14px;
+      height: auto;
+
+      .answer-item {
+        width: min(560px, 100%);
+        min-height: 60px;
+        border: 1px solid rgba(8, 31, 27, 0.1);
+        border-radius: 18px;
+        background: #f8faf9;
+        color: var(--app-text);
+        font-weight: 700;
+      }
+
+      .answer-item:hover {
+        border-color: rgba(31, 182, 146, 0.42);
+        background: #fff;
+        color: var(--app-accent-strong);
+      }
+    }
+  }
+
+  .register,
+  .score-situation {
+    border: 1px solid var(--app-border-dark);
+    border-radius: 26px;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: var(--app-shadow);
+  }
+
+  .register {
+    height: auto;
+    padding: 32px 54px 92px;
+
+    input[type="text"] {
+      width: 180px;
+      height: 36px;
+      padding: 0 12px;
+      border: 1px solid rgba(8, 31, 27, 0.16);
+      border-radius: 12px;
+      outline: none;
+    }
+
+    .buttons .affirm {
+      border-radius: 999px;
+      background: var(--app-accent-strong);
+      font-weight: 800;
+    }
+  }
+
+  .score-situation {
+    height: auto;
+    min-height: 620px;
+    border: 1px solid var(--app-border-dark);
+
+    .score {
+      color: var(--app-accent-strong) !important;
+    }
+
+    .again,
+    .center-buttons .check-answer,
+    .center-buttons .check-wrong {
+      border-radius: 999px;
+      background: var(--app-text);
+      color: #fff;
+      font-weight: 750;
+    }
+
+    .center-buttons .check-wrong {
+      background: var(--app-accent-strong);
+    }
+  }
+}
+
+@media (max-width: 860px) {
+  .examination-container {
+    padding: 20px 14px 60px;
+
+    .question {
+      padding: 24px 16px;
+
+      .progress {
+        width: 100%;
+      }
+
+      .qid {
+        position: static;
+        width: fit-content;
+        margin: 0 auto 18px;
+      }
+    }
+
+    .register {
+      width: calc(100vw - 32px);
+      padding: 28px 24px 92px;
+    }
+
+    .score-situation {
+      position: static;
+      transform: none;
+      width: 100%;
+      flex-direction: column;
+      gap: 24px;
     }
   }
 }

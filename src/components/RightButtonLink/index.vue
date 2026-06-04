@@ -35,66 +35,74 @@ export default {
 <style scoped lang="less">
 .right-button-link {
   position: fixed;
-  right: 0;
+  right: 28px;
   top: 0;
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 220px;
-  padding: 5px 10px;
-  height: 50px;
-  background-color: #fff;
-  border: 2px solid #000;
-  border-bottom-left-radius: 50px;
-  border-top-left-radius: 50px;
-  transition: all 0.3s;
-  margin-right: -150px;
-  margin-bottom: 20px;
+  min-width: 188px;
+  height: 46px;
+  padding: 0 18px;
+  border: 1px solid rgba(8, 31, 27, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 16px 45px rgba(8, 31, 27, 0.16);
+  backdrop-filter: blur(18px);
+  transition: transform 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
+  overflow: hidden;
 
   & a {
-    font-size: 20px;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0;
     text-decoration: none;
     text-align: center;
-    color: #006699;
+    color: #263b36;
     user-select: none;
     border: none;
   }
 }
+
+.right-button-link:hover,
 .right-button-link.active {
-  margin-right: 0;
+  transform: translateX(-8px);
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(31, 182, 146, 0.32);
 }
 .right-button-link.current {
-  margin-right: 0;
-  background-color: #006699;
-  border-color: #006699;
+  background: linear-gradient(135deg, rgba(115, 224, 193, 0.98), rgba(125, 183, 255, 0.96));
+  border-color: transparent;
+  box-shadow: 0 18px 50px rgba(31, 182, 146, 0.28);
 
   a {
-    color: #fff;
+    color: #061512;
   }
 }
 
 @media (max-width: 768px) {
   .right-button-link {
-    right: 12px;
-    width: 48px;
-    height: 48px;
+    right: 14px;
+    min-width: 0;
+    width: 54px;
+    height: 54px;
     padding: 0;
-    margin-right: 0;
     border-radius: 50%;
-    overflow: hidden;
 
     a {
-      display: flex;
-      width: 100%;
-      height: 100%;
-      align-items: center;
-      justify-content: center;
       padding: 0 8px;
-      box-sizing: border-box;
-      font-size: 12px;
-      line-height: 16px;
+      font-size: 11px;
+      line-height: 14px;
     }
+  }
+
+  .right-button-link:hover,
+  .right-button-link.active {
+    transform: none;
   }
 }
 </style>

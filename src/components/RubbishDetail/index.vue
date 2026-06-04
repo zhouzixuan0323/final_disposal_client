@@ -14,15 +14,17 @@
       </div>
     </div>
 
-    <ul class="rubbish-list">
-      <li @click="handleShowPopUpBox(rubbishItem.rid)" class="item" v-for="rubbishItem in rubbishData?.items" :key="rubbishItem.rid">{{ rubbishItem.rname }}</li>
-    </ul>
+    <div class="detail-scroll">
+      <ul class="rubbish-list">
+        <li @click="handleShowPopUpBox(rubbishItem.rid)" class="item" v-for="rubbishItem in rubbishData?.items" :key="rubbishItem.rid">{{ rubbishItem.rname }}</li>
+      </ul>
 
-    <div class="empty-result" v-if="isFinished && rubbishData?.items?.length === 0">
-      没有找到相关垃圾，试试纸巾、电池、苹果核这类关键词
+      <div class="empty-result" v-if="isFinished && rubbishData?.items?.length === 0">
+        没有找到相关垃圾，试试纸巾、电池、苹果核这类关键词
+      </div>
+
+      <InfiniteLoading @infinite="loadMore" :isLoading="isLoading" :isFinished="isFinished"></InfiniteLoading>
     </div>
-
-    <InfiniteLoading @infinite="loadMore" :isLoading="isLoading" :isFinished="isFinished"></InfiniteLoading>
 
     <Transition name="pop-up-box">
       <div class="pop-up-box" v-if="showPopUpBox && rubbishId" @click.self="handleHidePopUpBox">
@@ -194,43 +196,121 @@ function useGetRubbishData(props) {
 <style scoped lang="less">
 .rubbish-detail-box {
   width: 100%;
-  height: 100%;
-  color: #fff;
-  overflow-y: auto;
+  height: min(820px, calc(100vh - 64px));
+  max-width: 1180px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  color: var(--app-text);
+  border: 1px solid rgba(255, 255, 255, 0.62);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--app-shadow);
+  overflow: hidden;
+  backdrop-filter: blur(24px);
 
   .title {
     position: sticky;
     top: 0;
     left: 0;
-    z-index: 999;
-    height: 60px;
-    line-height: 60px;
+    z-index: 20;
+    min-height: 78px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid rgba(8, 31, 27, 0.08);
+    background: rgba(255, 255, 255, 0.82) !important;
+    backdrop-filter: blur(18px);
     text-align: center;
-    font-size: 30px;
-    //background-color: #2d6a32;
-    padding: 0 20px;
+    padding: 0 72px;
+
+    h2 {
+      color: var(--app-text);
+      font-size: 26px;
+      font-weight: 750;
+      letter-spacing: 0;
+    }
 
     .close-btn {
-      float: right;
-      font-size: 40px;
+      position: absolute;
+      right: 22px;
+      top: 50%;
+      width: 42px;
+      height: 42px;
+      transform: translateY(-50%);
+      border-radius: 50%;
+      background: #f3f6f4;
+      color: #6c7d78;
+      font-size: 32px;
+      line-height: 38px;
       cursor: pointer;
       user-select: none;
+      transition: background-color 0.2s ease, color 0.2s ease;
     }
 
     .close-btn:hover {
-      color: red;
+      background: #feecec;
+      color: var(--app-danger);
     }
   }
 
   .rubbish-introduce {
-    margin: 0 auto;
-    width: 1000px;
-    padding: 20px;
-    background-color: #2d6a32;
-    font-size: 25px;
-    border-bottom-left-radius: 20px;
-    border-bottom-right-radius: 20px;
-    line-height: 40px;
+    flex: 0 0 auto;
+    margin: 28px auto 10px;
+    width: calc(100% - 56px);
+    padding: 24px 28px;
+    border: 1px solid rgba(8, 31, 27, 0.08);
+    border-radius: 20px;
+    background: linear-gradient(135deg, rgba(31, 182, 146, 0.12), rgba(125, 183, 255, 0.12)) !important;
+    color: var(--app-text);
+    font-size: 16px;
+    line-height: 28px;
+
+    strong {
+      font-weight: 750;
+    }
+
+    ul {
+      margin-top: 10px;
+      display: grid;
+      gap: 8px;
+    }
+
+    li {
+      position: relative;
+      padding-left: 18px;
+      color: var(--app-text-soft);
+    }
+
+    li:before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 12px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--app-accent-strong);
+    }
+  }
+
+  .detail-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-bottom: 12px;
+  }
+
+  .detail-scroll::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  .detail-scroll::-webkit-scrollbar-thumb {
+    border: 3px solid transparent;
+    border-radius: 999px;
+    background: rgba(8, 31, 27, 0.24);
+    background-clip: content-box;
   }
 
   .pop-up-box {
@@ -239,37 +319,39 @@ function useGetRubbishData(props) {
     top: 0;
     width: 100%;
     height: 100%;
-    z-index:1000
+    z-index:1000;
+    background: rgba(5, 12, 11, 0.52);
+    backdrop-filter: blur(14px);
   }
 
   .rubbish-list {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    overflow: hidden;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 14px;
+    padding: 28px;
 
     .item {
       display: flex;
-      width: 19%;
-      height: 60px;
-      border-radius: 15px;
-      //background-color: #999;
-      margin: 5px;
+      min-height: 58px;
+      border-radius: 16px;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      color: #000;
-      border: 2px solid #000;
-    }
-
-    .item.active {
-      background-color: red;
+      color: var(--app-text);
+      border: 1px solid rgba(8, 31, 27, 0.1);
+      background: #f8faf9;
+      font-size: 15px;
+      font-weight: 650;
+      text-align: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
     }
 
     .item:hover {
-      background-color: red;
-      color: #fff;
+      transform: translateY(-2px);
+      border-color: rgba(31, 182, 146, 0.36);
+      background: #ffffff;
+      box-shadow: 0 16px 38px rgba(8, 31, 27, 0.1);
+      color: var(--app-accent-strong);
     }
   }
 
@@ -277,9 +359,9 @@ function useGetRubbishData(props) {
     margin: 80px auto 0;
     width: min(680px, calc(100% - 40px));
     padding: 24px;
-    border: 1px dashed #999;
-    border-radius: 8px;
-    color: #333;
+    border: 1px dashed rgba(8, 31, 27, 0.22);
+    border-radius: 18px;
+    color: var(--app-text-soft);
     text-align: center;
     line-height: 24px;
     background-color: #f7f7f7;
@@ -305,6 +387,34 @@ function useGetRubbishData(props) {
 
   .pop-up-box-leave-to{
     opacity: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .rubbish-detail-box {
+    height: calc(100vh - 28px);
+    border-radius: 22px;
+
+    .title {
+      min-height: 68px;
+      padding: 0 62px 0 18px;
+
+      h2 {
+        font-size: 20px;
+      }
+    }
+
+    .rubbish-introduce {
+      width: calc(100% - 28px);
+      margin-top: 16px;
+      padding: 18px;
+    }
+
+    .rubbish-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      padding: 14px;
+    }
   }
 }
 </style>

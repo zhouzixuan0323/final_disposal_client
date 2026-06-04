@@ -4,7 +4,9 @@
       <img src="../../assets/images/environmental-protection.jpg" alt="">
     </div>
     <div class="article-tools">
-      <a v-for="section in sections" :key="section.id" :href="`#${section.id}`">{{ section.title }}</a>
+      <button v-for="section in sections" :key="section.id" type="button" @click="scrollToSection(section.id)">
+        {{ section.title }}
+      </button>
       <button type="button" @click="scrollTop">返回顶部</button>
     </div>
     <div class="text-content">
@@ -261,7 +263,7 @@
 
       </div>
     </div>
-    <RightButtonLink v-for="(item, index) in rightButtons" :key="index" :style="{top: index * 100 + 100 + 'px'}"
+    <RightButtonLink v-for="(item, index) in rightButtons" :key="index" :style="{top: index * 60 + 100 + 'px'}"
                      :class="[rightButtonActiveIndex === index ? 'active':'']"
                      @mouseenter="handleShowActiveClass(index)" @mouseleave="handleHideActiveClass" :to="item.path">
       {{ item.text }}
@@ -270,8 +272,8 @@
 </template>
 
 <script>
-import RightButtonLink from "../../components/RightButtonLink/index.vue"
-import {ref} from "vue";
+import { ref } from "vue";
+import RightButtonLink from "../../components/RightButtonLink/index.vue";
 export default {
   name: "index",
   components:{
@@ -291,6 +293,15 @@ export default {
 
     function scrollTop() {
       window.scrollTo({top: 0, behavior: "smooth"});
+    }
+
+    function scrollToSection(id) {
+      const target = document.getElementById(id);
+      if (!target) return;
+
+      const offset = window.innerWidth <= 1200 ? 72 : 28;
+      const top = target.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({top, behavior: "smooth"});
     }
 
     let rightButtonActiveIndex = ref(false);
@@ -324,7 +335,8 @@ export default {
       rightButtons,
       rightButtonActiveIndex,
       sections,
-      scrollTop
+      scrollTop,
+      scrollToSection
     }
   }
 }
@@ -334,7 +346,9 @@ export default {
 .rubbish-class {
   width: 100%;
   height: 100%;
-  background-color: #f5f5f5;
+  background:
+      radial-gradient(circle at 12% 12%, rgba(115, 224, 193, 0.12), transparent 30%),
+      #f4f8f6;
   overflow-x: hidden;
   scroll-behavior: smooth;
 
@@ -348,18 +362,18 @@ export default {
     gap: 8px;
     width: 96px;
 
-    a,
     button {
       height: 32px;
-      border: 1px solid #d7e7ef;
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.95);
-      color: #006699;
+      border: 1px solid var(--app-border-dark);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.86);
+      color: var(--app-text);
       text-align: center;
-      text-decoration: none;
       line-height: 32px;
       font-size: 14px;
+      font-weight: 700;
       cursor: pointer;
+      box-shadow: 0 10px 26px rgba(8, 31, 27, 0.06);
     }
 
     button {
@@ -368,43 +382,47 @@ export default {
   }
 
   .img img {
-    object-fit: contain;
+    width: 100%;
+    max-height: 420px;
+    object-fit: cover;
+    filter: saturate(0.86) contrast(0.96);
   }
 
   .text-content {
-    background-color: #f5f5f5;
+    background-color: transparent;
     z-index: 2;
 
     .text-context-container {
       position: relative;
-      top: -200px;
+      top: -120px;
       margin: 0 auto;
-      background: #fff;
-      width: 1137px;
-      border: 1px solid #e5e5e5;
-      padding: 29px 29px 0;
+      background: rgba(255, 255, 255, 0.95);
+      width: min(980px, calc(100% - 48px));
+      border: 1px solid var(--app-border-dark);
+      border-radius: 28px;
+      box-shadow: 0 24px 80px rgba(8, 31, 27, 0.12);
+      padding: 44px 52px 18px;
 
       .h1-box {
-        margin: 0 0 5px;
-        line-height: 39px;
+        margin: 0 0 22px;
+        line-height: 1;
         h1 {
-          margin: 0 10px 0 0;
-          display: inline;
-          font-size: 34px;
+          margin: 0;
+          display: block;
+          font-size: 42px;
           line-height: 1.15;
-          font-weight: 400;
-          vertical-align: sub;
+          font-weight: 850;
+          color: var(--app-text);
         }
       }
 
       p {
-        text-indent: 2em;
+        text-indent: 0;
         font-size: 16px;
         word-wrap: break-word;
-        color: #333;
-        margin-bottom: 15px;
-        line-height: 24px;
-        zoom: 1;
+        color: #364843;
+        margin-bottom: 18px;
+        line-height: 30px;
       }
 
       .img {
@@ -414,34 +432,38 @@ export default {
 
       h3 {
         font-size: 20px;
-        font-weight: 400;
-        color: #333;
-        margin-bottom: 5px;
+        font-weight: 800;
+        color: var(--app-text);
+        margin: 22px 0 10px;
       }
 
       .h2-box {
-        display: block;
-        clear: both;
-        font-size: 20px;
-        border-left: 12px solid #4F9CEE;
-        line-height: 24px;
-        font-size: 22px;
-        font-weight: 400;
-        font-family: Microsoft YaHei,SimHei,Verdana;
-        margin: 35px 0 15px -30px;
-        background: url(https://bkssl.bdimg.com/static/wiki-lemma/normal/resource/img/paraTitle-line_743dba1.png);
+        display: flex;
+        align-items: center;
+        border-left: 0;
+        margin: 44px 0 18px;
+        background: none;
         position: relative;
         overflow: hidden;
 
+        &:before {
+          content: "";
+          width: 10px;
+          height: 28px;
+          margin-right: 12px;
+          border-radius: 999px;
+          background: linear-gradient(180deg, var(--app-accent), var(--app-accent-blue));
+        }
+
         h2 {
-          float: left;
+          float: none;
           display: block;
-          padding: 0 8px 0 18px;
-          line-height: 24px;
-          font-size: 22px;
-          font-weight: 400;
-          color: #000;
-          background: #fff;
+          padding: 0;
+          line-height: 32px;
+          font-size: 24px;
+          font-weight: 850;
+          color: var(--app-text);
+          background: transparent;
         }
       }
 
@@ -478,7 +500,6 @@ export default {
       padding: 10px 12px;
       background: #f5f5f5;
 
-      a,
       button {
         flex: 0 0 auto;
         padding: 0 12px;
@@ -487,7 +508,8 @@ export default {
 
     .text-content .text-context-container {
       top: 0;
-      width: calc(100% - 40px);
+      width: calc(100% - 28px);
+      padding: 28px 20px 8px;
       box-sizing: border-box;
     }
   }

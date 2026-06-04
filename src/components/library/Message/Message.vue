@@ -1,7 +1,6 @@
 <template>
   <Transition name="down" mode="out-in">
     <div class="message" :style="style[currentMessage]" v-if="isShow">
-      <i class="iconfont" :class="style[type].icon"></i>
       <span class="text">{{text}}</span>
     </div>
   </Transition>
@@ -25,24 +24,21 @@ export default defineComponent({
     const style = {
       // 警告类型的提示
       warn: {
-        icon: "icon-warning",
-        color: "#E6A23C",
-        backgroundColor: "rgb(253, 246, 236)",
-        borderColor: "rgb(250, 236, 216)",
+        color: "#6b4d11",
+        backgroundColor: "rgba(255, 246, 219, 0.96)",
+        borderColor: "rgba(238, 190, 91, 0.45)",
       },
       // 错误类型的提示
       error: {
-        icon: "icon-shanchu",
-        color: "#F56C6C",
-        backgroundColor: "rgb(254, 240, 240)",
-        borderColor: "rgb(253, 226, 226)",
+        color: "#7b2323",
+        backgroundColor: "rgba(255, 238, 238, 0.96)",
+        borderColor: "rgba(239, 107, 107, 0.35)",
       },
       // 成功类型的提示
       success: {
-        icon: "icon-queren2",
-        color: "#67C23A",
-        backgroundColor: "rgb(240, 249, 235)",
-        borderColor: "rgb(225, 243, 216)",
+        color: "#0d5c48",
+        backgroundColor: "rgba(230, 251, 244, 0.96)",
+        borderColor: "rgba(31, 182, 146, 0.35)",
       },
     };
 
@@ -72,23 +68,26 @@ export default defineComponent({
 </script>
 <style scoped lang="less">
 .message {
-  width: 300px;
-  height: 50px;
+  min-width: 260px;
+  max-width: min(420px, calc(100vw - 40px));
+  min-height: 48px;
   position: fixed;
   z-index: 9999;
   left: 50%;
-  margin-left: -150px;
+  transform: translateX(-50%);
   top: 25px;
-  line-height: 50px;
-  padding: 0 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 22px;
+  padding: 12px 22px;
   border: 1px solid #e4e4e4;
-  background: #f5f5f5;
-  color: #999;
-  border-radius: 4px;
-  i {
-    margin-right: 4px;
-    vertical-align: middle;
-  }
+  border-radius: 999px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(16px);
+  font-weight: 650;
+  text-align: center;
+
   .text {
     vertical-align: middle;
   }
@@ -97,14 +96,14 @@ export default defineComponent({
 .down {
   &-enter {
     &-from {
-      transform: translate3d(0, -75px, 0);
+      transform: translate3d(-50%, -75px, 0);
       opacity: 0;
     }
     &-active {
       transition: all 0.5s;
     }
     &-to {
-      transform: none;
+      transform: translateX(-50%);
       opacity: 1;
     }
   }
@@ -113,14 +112,14 @@ export default defineComponent({
 .down {
   &-leave {
     &-from {
-      transform: none;
+      transform: translateX(-50%);
       opacity: 1;
     }
     &-active {
       transition: all 0.5s;
     }
     &-to {
-      transform: translate3d(0, -75px, 0);
+      transform: translate3d(-50%, -75px, 0);
       opacity: 0;
     }
   }

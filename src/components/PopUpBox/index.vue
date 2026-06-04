@@ -136,96 +136,101 @@ function getRubbishData(props) {
 
 <style scoped lang="less">
 .pop-up {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 32px;
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 1200px;
-  height: 500px;
-  background-color: #fff;
+  width: min(1080px, calc(100vw - 48px));
+  min-height: 520px;
+  padding: 72px 48px 44px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 30px 100px rgba(0, 0, 0, 0.32);
   overflow: hidden;
-  border: 2px solid #000;
+  color: var(--app-text);
 
   .close {
     position: absolute;
-    right: 10px;
-    top: 10px;
-    width: 50px;
-    height: 50px;
-    //background-color: aqua;
+    right: 24px;
+    top: 22px;
+    width: 42px;
+    height: 42px;
     text-align: center;
-    line-height: 45px;
-    font-size: 40px;
-    //border: 2px solid yellow;
+    line-height: 38px;
+    font-size: 30px;
     border-radius: 50%;
+    background: #f4f7f5;
     cursor: pointer;
     user-select: none;
-    color: #000;
+    color: #73837e;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
   .close:hover {
-    color: red;
+    background: #feecec;
+    color: var(--app-danger);
   }
 
   .info-title {
-    position: fixed;
-    left: 130px;
-    top: 60px;
-    color: #000;
-    font-size: 26px;
-    font-weight: bolder;
+    position: absolute;
+    left: 48px;
+    top: 34px;
+    color: var(--app-text);
+    font-size: 24px;
+    font-weight: 800;
   }
 
   .info {
-    width: 400px;
-    height: 300px;
-    //background-color: #999;
-    color: #000;
-    border: 1px solid #000;
-    border-radius: 15px;
-    padding-left: 20px;
-    padding-top: 20px;
-    box-sizing: border-box;
+    min-height: 320px;
+    color: var(--app-text);
+    border: 1px solid var(--app-border-dark);
+    border-radius: 22px;
+    padding: 28px;
+    background: linear-gradient(135deg, #ffffff, #f5faf7);
 
 
     & div {
-      margin-bottom: 20px;
+      margin-bottom: 22px;
     }
 
     .rubbish-name {
-      font-size: 24px;
-      font-weight: bolder;
+      font-size: 28px;
+      font-weight: 800;
     }
 
     .rubbish-type {
 
       .type {
         display: inline-block;
-        padding: 5px 20px;
-        border-radius: 20px;
-        font-size: 20px;
+        padding: 7px 16px;
+        border-radius: 999px;
+        font-size: 15px;
+        font-weight: 700;
         color: #fff;
-        /*font-weight: bolder;*/
       }
     }
   }
 
   .roll-title {
-    position: fixed;
-    right: 160px;
-    top: 60px;
-    color: #000;
-    font-size: 26px;
-    font-weight: bolder;
+    position: absolute;
+    right: 120px;
+    top: 34px;
+    color: var(--app-text);
+    font-size: 24px;
+    font-weight: 800;
   }
 
   .roll {
     width: 300px;
     height: 300px;
-    /*background-color: green;*/
+    align-self: center;
+    justify-self: center;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(115, 224, 193, 0.18), rgba(125, 183, 255, 0.08) 55%, transparent 70%);
   }
 
   .tags {
@@ -233,13 +238,34 @@ function getRubbishData(props) {
   }
 
   .introduce {
-    /*text-indent: 2em;*/
-    line-height: 24px;
+    line-height: 26px;
+    color: var(--app-text-soft);
   }
 
   .introduce-text {
-    font-size: 20px;
-    font-weight: bolder;
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--app-text);
+  }
+}
+
+@media (max-width: 860px) {
+  .pop-up {
+    grid-template-columns: 1fr;
+    width: calc(100vw - 28px);
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    padding: 72px 22px 28px;
+
+    .info-title,
+    .roll-title {
+      position: static;
+      margin-bottom: 16px;
+    }
+
+    .roll-title {
+      margin-top: 10px;
+    }
   }
 }
 </style>

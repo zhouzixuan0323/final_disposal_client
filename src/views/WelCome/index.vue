@@ -29,7 +29,7 @@ export default {
     // 获取浏览器高
     let height = window.innerHeight;
 
-    let mouseX = -400;
+    let mouseX = 0;
     let mouseY = 0;
 
     let windowHalfX = window.innerWidth / 2;
@@ -42,6 +42,12 @@ export default {
 
     // 镜子
     let planeGeometry;
+
+    const roomWidth = 6800;
+    const roomDepth = 4600;
+    const roomHeight = 1400;
+    const roomCenter = new THREE.Vector3(0, 0, -150);
+    const cameraBasePosition = new THREE.Vector3(0, 0, 1250);
 
     // 创建初始化函数
     function init() {
@@ -95,9 +101,9 @@ export default {
       // 创建相机对象
       camera = new THREE.PerspectiveCamera(50, width / height, 1, 100000);
       // 设置相机位置
-      camera.position.set( -2000, 0, 800);
+      camera.position.copy(cameraBasePosition);
       // 设置相机方向(指向场景的的坐标)
-      camera.lookAt(scene.position);
+      camera.lookAt(roomCenter);
     }
 
     // 初始化光源
@@ -108,7 +114,7 @@ export default {
       // 创建白色光源
       point = new THREE.SpotLight(0xffffff);
       // 设置光源位置
-      point.position.set(0, 300, -300);
+      point.position.set(0, 360, 520);
       // 开启阴影
       point.castShadow = true;
       // 设置阴影像素
@@ -128,7 +134,7 @@ export default {
     // 初始化地板
     function initGround() {
 
-      planeGeometry = new PlaneBufferGeometry(1800, 1800);
+      planeGeometry = new PlaneBufferGeometry(roomWidth, roomDepth);
 
       // 镜面反射
       const mirror = new Reflector(planeGeometry, {
@@ -137,7 +143,7 @@ export default {
         textureHeight: window.innerHeight * window.devicePixelRatio,
         transparent: true,
       });
-      mirror.position.z = 0
+      mirror.position.z = roomCenter.z
       mirror.position.y = -150
       mirror.rotateX(Math.PI * 1.5)
       scene.add(mirror);
@@ -151,12 +157,13 @@ export default {
           })
       );
       plane.position.y = -149;
+      plane.position.z = roomCenter.z;
       plane.rotation.x = -Math.PI / 2;
       scene.add(plane);
 
       let separation = 150;
-      let amountx = 10;
-      let amounty = 10;
+      let amountx = 26;
+      let amounty = 24;
 
       let PI2 = Math.PI * 2;
       let material = new THREE.SpriteMaterial({
@@ -168,7 +175,7 @@ export default {
           let sprite = new THREE.Sprite(material);
           sprite.position.x = ix * separation - (amountx * separation) / 2;
           sprite.position.y = -149;
-          sprite.position.z = iy * separation - (amounty * separation) / 2;
+          sprite.position.z = iy * separation - (amounty * separation) / 2 + roomCenter.z;
           sprite.scale.setScalar(2);
           scene.add(sprite);
         }
@@ -204,8 +211,9 @@ export default {
         geometry.computeBoundingBox();
 
         const xMid = -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
+        const yMid = roomCenter.y - 0.2 * (geometry.boundingBox.max.y - geometry.boundingBox.min.y);
 
-        geometry.translate(xMid, 0, -150);
+        geometry.translate(xMid, yMid, roomCenter.z);
 
         // make shape ( N.B. edge view not visible )
 
@@ -245,10 +253,9 @@ export default {
           const points = shape.getPoints();
           const geometry = new THREE.BufferGeometry().setFromPoints(points);
 
-          geometry.translate(xMid, 0, 0);
+          geometry.translate(xMid, yMid - 90, roomCenter.z + 200);
 
           const lineMesh = new THREE.Line(geometry, matDark);
-          lineText.position.y = -100
           lineText.add(lineMesh);
 
         }
@@ -289,15 +296,17 @@ export default {
     }
 
     function onDocumentMouseMove(event) {
-      mouseX = event.clientX - windowHalfX;
-      mouseY = (event.clientY - windowHalfY) * 0.1;
+      const cameraOffsetX = (event.clientX - windowHalfX) * 0.12;
+      mouseX = THREE.MathUtils.clamp(cameraBasePosition.x + cameraOffsetX, cameraBasePosition.x - 180, cameraBasePosition.x + 180);
+      mouseY = (event.clientY - windowHalfY) * 0.12;
     }
 
     // 渲染
     function render() {
       camera.position.x += (mouseX - camera.position.x) * 0.05;
-      camera.position.y += (-mouseY - camera.position.y) * 0.05;
-      camera.lookAt(scene.position);
+      camera.position.y += (cameraBasePosition.y - mouseY - camera.position.y) * 0.05;
+      camera.position.z += (cameraBasePosition.z - camera.position.z) * 0.05;
+      camera.lookAt(roomCenter);
 
       // imageReflectionContext.drawImage(image, 0, 0);
       // imageReflectionContext.fillStyle = imageReflectionGradient;
@@ -372,19 +381,30 @@ export default {
     left: 50%;
     bottom: 48px;
     transform: translateX(-50%);
-    min-width: 240px;
-    height: 44px;
-    border: 1px solid #006699;
-    border-radius: 22px;
-    background: #006699;
-    color: #fff;
-    font-size: 18px;
+    min-width: 248px;
+    height: 48px;
+    border: 1px solid rgba(0, 102, 153, 0.28);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.58);
+    color: #005b76;
+    font-size: 17px;
+    font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 8px 20px rgba(0, 102, 153, 0.24);
+    box-shadow: 0 18px 44px rgba(0, 102, 153, 0.18);
+    backdrop-filter: blur(18px);
+    transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
   }
 
   .enter-button:hover {
-    background: #00547d;
+    transform: translateX(-50%) translateY(-2px);
+    border-color: rgba(0, 102, 153, 0.46);
+    background: rgba(255, 255, 255, 0.76);
+    box-shadow: 0 22px 54px rgba(0, 102, 153, 0.22);
+  }
+
+  .enter-button:focus-visible {
+    outline: 3px solid rgba(0, 102, 153, 0.2);
+    outline-offset: 4px;
   }
 }
 </style>

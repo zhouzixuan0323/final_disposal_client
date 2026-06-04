@@ -11,7 +11,7 @@
 
     <div id="tooltip" ref="tooltip"></div>
 
-    <RightButtonLink v-for="(item, index) in rightButtons" :key="index" :style="{top: index * 100 + 100 + 'px'}"
+    <RightButtonLink v-for="(item, index) in rightButtons" :key="index" :style="{top: index * 60 + 100 + 'px'}"
                      :class="[rightButtonActiveIndex === index ? 'active':'']"
                      @mouseenter="handleShowActiveClass(index)" @mouseleave="handleHideActiveClass" :to="item.path">
       {{ item.text }}
@@ -30,6 +30,7 @@ import { Raycaster, Vector2 } from "three";
 
 // obj加载模型方法
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { Reflector } from "three/examples/jsm/objects/Reflector.js";
 import { onMounted, onUnmounted, ref } from "vue";
 // import "../../../public/models/trash_can/scene.gltf";
 // 引入用户年龄饼图组件
@@ -107,7 +108,7 @@ export default {
 
     let particles, particle, count = 0;
 
-    let SEPARATION = 100, AMOUNTX = 50, AMOUNTY = 50;
+    let SEPARATION = 110, AMOUNTX = 42, AMOUNTY = 30;
     let animationFrameId;
     let tooltipMouseMove;
 
@@ -120,7 +121,7 @@ export default {
 
 \t\t\t\tvec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
 
-\t\t\t\tgl_PointSize = scale * ( 300.0 / - mvPosition.z );
+\t\t\t\tgl_PointSize = scale * ( 90.0 / - mvPosition.z );
 
 \t\t\t\tgl_Position = projectionMatrix * mvPosition;
 
@@ -158,15 +159,13 @@ export default {
       // 初始化加载器，加载场景背景图片
       // let textureCube = new THREE.CubeTextureLoader().load(urls);
       // textureCube.mapping = THREE.CubeRefractionMapping;
-      let sceneBackgroundColor = new THREE.Color(0x000000)
       // 创建场景
       scene = new THREE.Scene();
-      // 给场景添加背景
-      scene.background = sceneBackgroundColor;
+      scene.background = null;
       // 初始化
       initCamera();
       initPoint();
-      // initGround();
+      initGround();
       // axis();
       // initStats();
       setRaycaster();
@@ -177,7 +176,7 @@ export default {
       // 设置渲染器大小
       renderer.setSize(width, height);
       // 设置背景颜色
-      renderer.setClearColor(0x000000, 1);
+      renderer.setClearColor(0x000000, 0);
       // 模型开启阴影
       renderer.shadowMap.enabled = true;
       //取消Threejs帧缓冲区数据自动清除功能
@@ -237,6 +236,49 @@ export default {
       camera.lookAt(scene.position);
     }
 
+    function initGround() {
+      const groundGeometry = new THREE.PlaneBufferGeometry(2600, 1800);
+      const mirror = new Reflector(groundGeometry, {
+        clipBias: 0.02,
+        textureWidth: Math.min(1024, window.innerWidth * window.devicePixelRatio),
+        textureHeight: Math.min(1024, window.innerHeight * window.devicePixelRatio),
+        color: 0x0f1c19,
+      });
+
+      mirror.position.y = -155;
+      mirror.position.z = 80;
+      mirror.rotateX(Math.PI * 1.5);
+      scene.add(mirror);
+
+      const softPlane = new THREE.Mesh(
+          groundGeometry,
+          new THREE.MeshBasicMaterial({
+            color: 0x10211d,
+            opacity: 0.34,
+            transparent: true,
+            depthWrite: false,
+          })
+      );
+      softPlane.position.y = -154;
+      softPlane.position.z = 80;
+      softPlane.rotation.x = -Math.PI / 2;
+      scene.add(softPlane);
+
+      const hazePlane = new THREE.Mesh(
+          groundGeometry,
+          new THREE.MeshBasicMaterial({
+            color: 0xdaf4eb,
+            opacity: 0.08,
+            transparent: true,
+            depthWrite: false,
+          })
+      );
+      hazePlane.position.y = -153.5;
+      hazePlane.position.z = 80;
+      hazePlane.rotation.x = -Math.PI / 2;
+      scene.add(hazePlane);
+    }
+
     // 初始化波浪
     function initWave() {
       //
@@ -256,7 +298,7 @@ export default {
           positions[i + 1] = 0; // y
           positions[i + 2] = iy * SEPARATION - ((AMOUNTY * SEPARATION) / 2); // z
 
-          scales[j] = 1;
+          scales[j] = 4.4;
 
           i += 3;
           j++;
@@ -272,7 +314,7 @@ export default {
       const material = new THREE.ShaderMaterial({
 
         uniforms: {
-          color: {value: new THREE.Color(0x047ed6)},
+          color: {value: new THREE.Color(0x73e0c1)},
         },
         vertexShader: document.getElementById('vertexshader').textContent,
         fragmentShader: document.getElementById('fragmentshader').textContent
@@ -281,7 +323,7 @@ export default {
       //
 
       particles = new THREE.Points(geometry, material);
-      particles.position.setY(-300);
+      particles.position.setY(-245);
       scene.add(particles);
     }
 
@@ -605,11 +647,10 @@ export default {
 
         for (let iy = 0; iy < AMOUNTY; iy++) {
 
-          positions[i + 1] = (Math.sin((ix + count) * 0.3) * 50) +
-              (Math.sin((iy + count) * 0.5) * 50);
+          positions[i + 1] = (Math.sin((ix + count) * 0.18) * 5) +
+              (Math.sin((iy + count) * 0.22) * 4);
 
-          scales[j] = (Math.sin((ix + count) * 0.3) + 1) * 20 +
-              (Math.sin((iy + count) * 0.5) + 1) * 20;
+          scales[j] = 4.4;
 
           i += 3;
           j++;
@@ -621,7 +662,7 @@ export default {
       particles.geometry.attributes.position.needsUpdate = true;
       particles.geometry.attributes.scale.needsUpdate = true;
 
-      count += 0.1;
+      count += 0.035;
 
       renderer.render(scene, camera);
     }
@@ -727,61 +768,106 @@ export default {
 <style scoped lang="less">
 .home-page {
   position: relative;
-  /*height: 100%;*/
+  min-height: 100vh;
   width: 100%;
+  background:
+      radial-gradient(circle at 18% 18%, rgba(115, 224, 193, 0.18), transparent 28%),
+      radial-gradient(circle at 80% 14%, rgba(125, 183, 255, 0.18), transparent 28%),
+      linear-gradient(145deg, #071311 0%, #0c1c19 45%, #071013 100%);
   overflow: hidden;
 
-  /*垃圾详情*/
+  &:before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 72px 72px;
+    opacity: 0.48;
+    mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.72), transparent 70%);
+  }
+
+  &:after {
+    content: "归宿";
+    position: absolute;
+    left: 64px;
+    top: 42px;
+    z-index: 1;
+    color: rgba(244, 251, 248, 0.92);
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+
+  #canvas-box {
+    position: relative;
+    z-index: 0;
+  }
 
   .rubbish-detail {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(255, 255, 255, 1);
-    /*opacity: .8;*/
-
-    /*padding-top: 60px;*/
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    background: rgba(5, 12, 11, 0.62);
+    backdrop-filter: blur(22px);
     overflow: hidden;
-    z-index: 2;
+    z-index: 20;
   }
 
   .detail-box-enter-active,
   .detail-box-leave-active {
-    transition: all 1s ease;
+    transition: opacity 0.24s ease, transform 0.24s ease;
   }
 
   .detail-box-enter-from {
-    top: 1000px;
+    opacity: 0;
+    transform: scale(0.98);
   }
 
   .detail-box-enter-to {
-    top: 0;
+    opacity: 1;
+    transform: scale(1);
   }
 
   .detail-box-leave-from {
-    top: 0px;
+    opacity: 1;
+    transform: scale(1);
   }
 
   .detail-box-leave-to {
-    top: 1000px;
+    opacity: 0;
+    transform: scale(0.98);
   }
 
   #tooltip {
     position: absolute;
-    z-index: 2;
-    background: white;
-    padding: 10px;
-    border-radius: 2px;
+    z-index: 10;
+    min-width: 112px;
+    padding: 10px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 999px;
+    background: rgba(8, 21, 18, 0.72);
+    color: var(--app-text-inverse);
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.22);
+    backdrop-filter: blur(16px);
+    text-align: center;
+    font-size: 14px;
     visibility: hidden;
     user-select: none;
   }
 
   .search {
     position: absolute;
-    right: 300px;
-    top: 20px;
+    left: 64px;
+    top: 112px;
+    z-index: 3;
   }
 
   .home-guide {
@@ -800,10 +886,21 @@ export default {
 
 @media (max-width: 768px) {
   .home-page {
+    &:after {
+      left: 20px;
+      top: 24px;
+      font-size: 22px;
+    }
+
     .search {
-      left: 16px;
-      right: 16px;
-      top: 18px;
+      left: 14px;
+      right: 14px;
+      top: 76px;
+    }
+
+    .rubbish-detail {
+      padding: 14px;
+      align-items: center;
     }
 
     .home-guide {
