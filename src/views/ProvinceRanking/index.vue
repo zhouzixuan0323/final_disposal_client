@@ -60,16 +60,21 @@
 </template>
 
 <script>
-import * as echarts from 'echarts';
+import * as echarts from 'echarts/core';
+import { BarChart } from 'echarts/charts';
+import { GridComponent, TitleComponent } from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
 import * as THREE from "three";
 // import {Geo} from 'three'
 import { geoMercator } from "d3-geo";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { onMounted, ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 
 import RightButtonLink from "../../components/RightButtonLink/index.vue";
 
 import Loading from "../../components/Loading/index.vue";
+
+echarts.use([BarChart, CanvasRenderer, GridComponent, TitleComponent]);
 
 export default {
   name: "index",
@@ -83,6 +88,9 @@ export default {
     let raycaster, mouse, tooltip;
     let lastPick;
     let map;
+    let animationFrameId;
+    let mouseMoveHandler;
+    let histogramChart;
 
     function init() {
       // 第一步新建一个场景
@@ -95,7 +103,7 @@ export default {
       loadMapData();
       setLight();
       // 监听浏览器可视区变化
-      window.onresize = onWindowResize;
+      window.addEventListener("resize", onWindowResize);
     }
 
     // 加载地图数据
@@ -240,18 +248,18 @@ export default {
       raycaster = new THREE.Raycaster();
       mouse = new THREE.Vector2();
       tooltip = document.getElementById("tooltip");
-      const onMouseMove = (event) => {
+      mouseMoveHandler = (event) => {
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
         tooltip.style.left = event.clientX + 2 + "px";
         tooltip.style.top = event.clientY + 2 + "px";
       };
 
-      window.addEventListener("mousemove", onMouseMove, false);
+      window.addEventListener("mousemove", mouseMoveHandler, false);
     }
 
     function animate() {
-      requestAnimationFrame(animate);
+      animationFrameId = requestAnimationFrame(animate);
       // 通过摄像机和鼠标位置更新射线
       raycaster.setFromCamera(mouse, camera);
       // 算出射线 与当场景相交的对象有那些
@@ -294,11 +302,12 @@ export default {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
+      histogramChart?.resize();
     }
 
     function histogramInit() {
       let chartDom = document.getElementById('histogram-canvas');
-      let myChart = echarts.init(chartDom);
+      histogramChart = echarts.init(chartDom);
       let option;
 
       option = {
@@ -386,7 +395,7 @@ export default {
         ]
       };
 
-      option && myChart.setOption(option);
+      option && histogramChart.setOption(option);
     }
 
     let rightButtonActiveIndex = ref();
@@ -417,6 +426,27 @@ export default {
     onMounted(() => {
       init();
       histogramInit();
+    })
+
+    onUnmounted(() => {
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      window.removeEventListener("resize", onWindowResize);
+      if (mouseMoveHandler) window.removeEventListener("mousemove", mouseMoveHandler, false);
+
+      controller?.dispose();
+      histogramChart?.dispose();
+
+      scene?.traverse((object) => {
+        if (object.geometry) object.geometry.dispose();
+        if (object.material) {
+          const materials = Array.isArray(object.material) ? object.material : [object.material];
+          materials.forEach((material) => material.dispose());
+        }
+      });
+
+      renderer?.dispose();
+      scene = null;
+      renderer = null;
     })
 
     return {

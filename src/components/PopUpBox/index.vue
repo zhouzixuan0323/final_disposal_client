@@ -22,18 +22,34 @@
       垃圾回收后的处理方法
     </div>
 
-    <div class="roll" ref="roll">
+    <div class="roll">
+      <div id="roll-canvas-container" v-show="isCanvasVisible">
+        <canvas id="roll-canvas" width="300" height="300"></canvas>
+      </div>
 
-
+      <div id="tags" class="tags">
+        <ul>
+          <li v-for="method in processMethods" :key="method">
+            <a href="#" @click.prevent>{{ method }}</a>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-// import tagCanvas from "tag-canvas"
-// import  tagCanvas from 'jquery-tagcanvas'
-import {nextTick, onMounted, ref} from "vue";
+import {nextTick, onMounted, onUnmounted, ref} from "vue";
 import {getRubbishType} from "../../api/rubbishDetailApi";
+
+const DEFAULT_PROCESS_METHODS = ["填埋法", "焚烧法", "特殊处理法", "堆肥法"];
+
+const PROCESS_METHODS = {
+  "干垃圾": ["卫生填埋法", "卫生分解法", "生物解决法", "焚烧法"],
+  "湿垃圾": ["微生物发酵制肥法", "微生物分解法", "物理粉碎法"],
+  "可回收垃圾": ["垃圾再生法", "焚烧发电法", "堆肥法", "生物降解法"],
+  "有害垃圾": DEFAULT_PROCESS_METHODS,
+};
 
 export default {
   name: "index",
@@ -53,79 +69,14 @@ export default {
       emit('handleHidePopUpBox');
     }
 
-    let roll = ref();
+    let isCanvasVisible = ref(true);
+    const processMethods = PROCESS_METHODS[props.currentType] || DEFAULT_PROCESS_METHODS;
 
     let {rubbishTypeData} = getRubbishData(props);
 
     function init() {
-      if (props.currentType === '干垃圾') {
-        roll.value.innerHTML = `<div id="roll-canvas-container">
-          <canvas id="roll-canvas" width="300" height="300" ref="canvas"></canvas>
-        </div>
-
-        <div id="tags" style="display: none;">
-          <ul>
-            <li><a href="javascript:;">卫生填埋法</a></li>
-            <li><a href="javascript:;">卫生分解法</a></li>
-            <li><a href="javascript:;">生物解决法</a></li>
-            <li><a href="javascript:;">焚烧法</a></li>
-          </ul>
-        </div>`
-      } else if (props.currentType === '湿垃圾') {
-        roll.value.innerHTML = `<div id="roll-canvas-container">
-          <canvas id="roll-canvas" width="300" height="300" ref="canvas"></canvas>
-        </div>
-
-        <div id="tags" style="display: none;">
-          <ul>
-            <li><a href="javascript:;">微生物发酵制肥法</a></li>
-            <li><a href="javascript:;">微生物分解法</a></li>
-            <li><a href="javascript:;">物理粉碎法</a></li>
-          </ul>
-        </div>`
-      } else if (props.currentType === '可回收垃圾') {
-        roll.value.innerHTML = `<div id="roll-canvas-container">
-          <canvas id="roll-canvas" width="300" height="300" ref="canvas"></canvas>
-        </div>
-
-        <div id="tags" style="display: none;">
-          <ul>
-            <li><a href="javascript:;">垃圾再生法</a></li>
-            <li><a href="javascript:;">焚烧发电法</a></li>
-            <li><a href="javascript:;">堆肥法</a></li>
-            <li><a href="javascript:;">生物降解法</a></li>
-          </ul>
-        </div>`
-      } else if (props.currentType === '有害垃圾') {
-        roll.value.innerHTML = `<div id="roll-canvas-container">
-          <canvas id="roll-canvas" width="300" height="300" ref="canvas"></canvas>
-        </div>
-
-        <div id="tags" style="display: none;">
-          <ul>
-            <li><a href="javascript:;">填埋法</a></li>
-            <li><a href="javascript:;">焚烧法</a></li>
-            <li><a href="javascript:;">特殊处理法</a></li>
-            <li><a href="javascript:;">堆肥法</a></li>
-          </ul>
-        </div>`
-      } else {
-        roll.value.innerHTML = `<div id="roll-canvas-container">
-          <canvas id="roll-canvas" width="300" height="300" ref="canvas"></canvas>
-        </div>
-
-        <div id="tags" style="display: none;">
-          <ul>
-            <li><a href="javascript:;">填埋法</a></li>
-            <li><a href="javascript:;">焚烧法</a></li>
-            <li><a href="javascript:;">特殊处理法</a></li>
-            <li><a href="javascript:;">堆肥法</a></li>
-          </ul>
-        </div>`
-      }
-
       try {
-        TagCanvas.Start('roll-canvas', 'tags', {
+        window.TagCanvas.Start('roll-canvas', 'tags', {
           shape: "sphere",
           dragControl: false, // 取消点击才能移动
           reverse: true, // 反方向移动
@@ -142,8 +93,7 @@ export default {
           ],
         });
       } catch (e) {
-        // console.log(document.getElementById('roll-canvas'))
-        document.getElementById('roll-canvas-container').style.display = 'none';
+        isCanvasVisible.value = false;
       }
     }
 
@@ -153,11 +103,15 @@ export default {
       });
     })
 
+    onUnmounted(() => {
+      window.TagCanvas?.Delete?.('roll-canvas');
+    })
 
     return {
       handleHidePopUpBox,
       rubbishTypeData,
-      roll
+      processMethods,
+      isCanvasVisible
     }
   }
 }
@@ -167,7 +121,6 @@ function getRubbishData(props) {
 
   function getData() {
     getRubbishType(props.rubbishId).then(({data}) => {
-      console.log(data)
       rubbishTypeData.value = data.rubbishType;
     })
   }
@@ -273,6 +226,10 @@ function getRubbishData(props) {
     width: 300px;
     height: 300px;
     /*background-color: green;*/
+  }
+
+  .tags {
+    display: none;
   }
 
   .introduce {

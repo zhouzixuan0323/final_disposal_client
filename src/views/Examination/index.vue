@@ -13,7 +13,7 @@
       <!--   题目   -->
       <div class="question" v-else-if="questionList && isStartingWork">
         <!--   当前是第几题   -->
-        <div class="qid">{{ questionIndex + 1 }}/10</div>
+        <div class="qid">{{ questionIndex + 1 }}/{{ questionList.length }}</div>
         <div class="question-title">{{ questionList[questionIndex].title }}</div>
         <div class="answer">
           <div class="answer-item optionA" @click="handleClickOption('A', questionList[questionIndex].optionA)">
@@ -131,7 +131,7 @@ export default {
 
     onMounted(() => {
       // 进入页面获取用户名
-      userInfo.value = JSON.parse(localStorage.getItem('userInfo')) || null;
+      userInfo.value = getStoredUserInfo();
       handleCheckUserExists();
     })
 
@@ -157,6 +157,9 @@ export default {
           } else if (data?.code === 200) {
             Message({type:"success", text: userInfo.value?.username + ' 欢迎回来'})
           }
+        }).catch(() => {
+          Message({type: "error", text: "用户信息校验失败"});
+          isShowRegister.value = true;
         })
       } else {
         // 用户不存在就让用户注册
@@ -191,9 +194,12 @@ export default {
           Message({type: 'success', text: data?.message});
           // 关闭注册弹框
           isShowRegister.value = false;
+          userInfo.value = {username, id: randomId};
           // 把用户名保存到本地，用作第二次进入页面时去数据库查找有没有这个用户
           localStorage.setItem('userInfo', JSON.stringify({username, id: randomId}));
         }
+      }).catch(() => {
+        Message({type: "error", text: "注册失败，请稍后重试"});
       })
     }
 
@@ -213,9 +219,8 @@ export default {
 
     // 点击开始答题按钮
     function handleStartingToWork() {
-      if (!userInfo) {
+      if (!userInfo.value) {
         isShowRegister.value = true;
-        console.log(111)
         return;
       }
 
@@ -223,12 +228,17 @@ export default {
       // 获取题目数据
       getQuestionData().then(({data}) => {
         questionList.value = [...data];
+      }).catch(() => {
+        isStartingWork.value = false;
+        Message({type: "error", text: "题目加载失败"});
       })
     }
 
     // 选择答案
     function handleClickOption(option, optionText) {
-      if (questionIndex.value === 9) {
+      const isLastQuestion = questionIndex.value === questionList.value.length - 1;
+
+      if (isLastQuestion) {
         // 到最后一题了, 到最后一题后还需要在执行一次保存答案，不然最后一题不会记录，但是不能让索引继续往上加
         if (option !== questionList.value[questionIndex.value].daan) {
           // 答错
@@ -255,7 +265,7 @@ export default {
         // 生成随机不重复id
         let randomId = GenNonDuplicateID(10)
         // 获取用户信息
-        let {username, id} = JSON.parse(localStorage.getItem('userInfo'));
+        let {username, id} = userInfo.value;
 
         let reqParams = {
           raid: randomId,
@@ -266,6 +276,8 @@ export default {
 
         addRankingData(reqParams).then((data) => {
           Message({type: 'success', text: data?.message});
+        }).catch(() => {
+          Message({type: "error", text: "排行榜提交失败"});
         })
 
 
@@ -315,6 +327,8 @@ export default {
 
       getRankingUser().then(({data}) => {
         rankingUsers.value = data.rankingUsers;
+      }).catch(() => {
+        Message({type: "error", text: "排行榜加载失败"});
       })
     }
 
@@ -378,6 +392,15 @@ export default {
       handleShowActiveClass,
       handleHideActiveClass
     }
+  }
+}
+
+function getStoredUserInfo() {
+  try {
+    return JSON.parse(localStorage.getItem('userInfo')) || null;
+  } catch (e) {
+    localStorage.removeItem('userInfo');
+    return null;
   }
 }
 </script>

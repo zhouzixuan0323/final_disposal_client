@@ -108,6 +108,8 @@ export default {
     let particles, particle, count = 0;
 
     let SEPARATION = 100, AMOUNTX = 50, AMOUNTY = 50;
+    let animationFrameId;
+    let tooltipMouseMove;
 
     let vertex = document.createElement('script');
     vertex.type = 'x-shader/x-vertex';
@@ -211,7 +213,7 @@ export default {
       document.addEventListener("mousemove", onDocumentMouseMove, false);
 
       // 监听浏览器可视区变化
-      window.onresize = onWindowResize;
+      window.addEventListener("resize", onWindowResize);
 
       renderer.domElement.addEventListener("click", onRaycasterClick);
       renderer.domElement.addEventListener('mousemove', onRaycasterMouseMove)
@@ -500,12 +502,12 @@ export default {
 
       // raycaster = new THREE.Raycaster();
       tooltip = document.getElementById("tooltip");
-      const onMouseMove = (event) => {
+      tooltipMouseMove = (event) => {
         tooltip.style.left = event.clientX - 30 + "px";
         tooltip.style.top = event.clientY - 40 + "px";
       };
 
-      window.addEventListener("mousemove", onMouseMove, false);
+      window.addEventListener("mousemove", tooltipMouseMove, false);
     }
 
     // 鼠标移入模型事件(进行鼠标拾取)
@@ -607,7 +609,7 @@ export default {
 
       showTip()
 
-      requestAnimationFrame(animate);
+      animationFrameId = requestAnimationFrame(animate);
     }
 
 
@@ -646,11 +648,34 @@ export default {
     });
 
     onUnmounted(() => {
-      // console.log(scene)
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      document.removeEventListener("mousemove", onDocumentMouseMove, false);
+      window.removeEventListener("resize", onWindowResize);
+      if (tooltipMouseMove) window.removeEventListener("mousemove", tooltipMouseMove, false);
+
+      if (renderer?.domElement) {
+        renderer.domElement.removeEventListener("click", onRaycasterClick);
+        renderer.domElement.removeEventListener("mousemove", onRaycasterMouseMove);
+      }
+
+      scene?.traverse((object) => {
+        if (object.geometry) object.geometry.dispose();
+        if (object.material) {
+          const materials = Array.isArray(object.material) ? object.material : [object.material];
+          materials.forEach((material) => {
+            Object.values(material).forEach((value) => {
+              if (value?.isTexture) value.dispose();
+            });
+            material.dispose();
+          });
+        }
+      });
+
+      renderer?.dispose();
+      vertex.remove();
+      fragment.remove();
       scene = null;
       renderer = null;
-      // render(null, document.getElementsByClassName('home-page')[0]);
-      // console.log(document.getElementById('home-page'));
     })
 
     return {

@@ -12,9 +12,9 @@ export function Message({ type, text }) {
     // 将创建好的虚拟DOM渲染到container容器中
     render(vNode, container);
     // 清除定时器
-    clearInterval(timer);
+    clearTimeout(timer);
     // 开启定时器，三秒后隐藏Message组件
-    timer = setInterval(() => {
+    timer = setTimeout(() => {
         render(null, container);
     }, 3000);
 }

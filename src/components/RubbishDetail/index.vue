@@ -15,7 +15,7 @@
     </div>
 
     <ul class="rubbish-list">
-      <li @click="handleShowPopUpBox(rubbishItem.rid)" class="item" v-for="rubbishItem in rubbishData?.items" :key="rubbishData?.rid">{{ rubbishItem.rname }}</li>
+      <li @click="handleShowPopUpBox(rubbishItem.rid)" class="item" v-for="rubbishItem in rubbishData?.items" :key="rubbishItem.rid">{{ rubbishItem.rname }}</li>
     </ul>
 
     <InfiniteLoading @infinite="loadMore" :isLoading="isLoading" :isFinished="isFinished"></InfiniteLoading>
@@ -31,10 +31,11 @@
 
 <script>
 import {ref, watch} from "vue";
-import {getRubbishDetailData, getRubbishType, getSearchData} from "../../api/rubbishDetailApi";
+import {getRubbishDetailData, getSearchData} from "../../api/rubbishDetailApi";
 
 import InfiniteLoading from "../../components/InfiniteLoading/index.vue"
 import PopUpBox from "../../components/PopUpBox/index.vue"
+import {Message} from "../../components/library/Message";
 
 
 export default {
@@ -126,9 +127,13 @@ function useGetRubbishData(props) {
           rubbishData.value.items = [...rubbishData.value.items,...data?.items];
         }
 
-        if(data.pages === reqParams.page) {
+        if(reqParams.page >= data.pages - 1) {
           isFinished.value = true;
         }
+      }).catch(() => {
+        isLoading.value = false;
+        isFinished.value = true;
+        Message({type: "error", text: "搜索数据加载失败"});
       })
 
       return ;
@@ -145,10 +150,14 @@ function useGetRubbishData(props) {
           rubbishData.value.items = [...rubbishData.value.items,...data?.items];
         }
 
-        if(data.pages === reqParams.page) {
+        if(reqParams.page >= data.pages - 1) {
           isFinished.value = true;
         }
 
+    }).catch(() => {
+      isLoading.value = false;
+      isFinished.value = true;
+      Message({type: "error", text: "垃圾详情加载失败"});
     })
 
     // 如果是搜索的情况下

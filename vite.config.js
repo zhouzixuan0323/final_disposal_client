@@ -9,10 +9,20 @@ export default defineConfig({
   resolve: {
     // 目录别名
     alias: {
-      "@/": path.resolve(__dirname, '/src')
+      "@": path.resolve(__dirname, "src"),
+      "@/": path.resolve(__dirname, "src") + "/"
     },
   },
   build: {
-    outDir: 'final_disposal_client'
+    outDir: 'final_disposal_client',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          three: ["three"],
+          echarts: ["echarts"],
+          vendor: ["vue", "vue-router", "@vueuse/core", "axios", "d3-geo"]
+        }
+      }
+    }
   }
 });

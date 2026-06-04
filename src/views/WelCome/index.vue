@@ -10,7 +10,7 @@
 
 <script>
 import * as THREE from "three";
-import {onMounted} from "vue";
+import {onMounted, onUnmounted} from "vue";
 import {FontLoader} from "three/examples/jsm/loaders/FontLoader.js"
 import {useRouter} from "vue-router";
 import {Mesh, PlaneBufferGeometry} from "three";
@@ -40,6 +40,7 @@ export default {
     let image, imageContext, texture;
 
     let mesh;
+    let animationFrameId;
 
     // 镜子
     let planeGeometry;
@@ -84,7 +85,7 @@ export default {
       texture = new THREE.Texture(image);
 
       // 监听浏览器可视区变化
-      window.onresize = onWindowResize;
+      window.addEventListener("resize", onWindowResize);
 
       document.addEventListener("mousemove", onDocumentMouseMove, false);
 
@@ -314,10 +315,8 @@ export default {
       //更新性能插件
       // stats.update();
 
-      requestAnimationFrame(animate);
+      animationFrameId = requestAnimationFrame(animate);
     }
-
-    document.body.addEventListener('keydown', handleGoHome)
 
     function handleGoHome(e) {
       // console.log(e)
@@ -327,6 +326,31 @@ export default {
     onMounted(() => {
       init();
       animate();
+      document.body.addEventListener('keydown', handleGoHome)
+    })
+
+    onUnmounted(() => {
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      window.removeEventListener("resize", onWindowResize);
+      document.removeEventListener("mousemove", onDocumentMouseMove, false);
+      document.body.removeEventListener('keydown', handleGoHome);
+
+      scene?.traverse((object) => {
+        if (object.geometry) object.geometry.dispose();
+        if (object.material) {
+          const materials = Array.isArray(object.material) ? object.material : [object.material];
+          materials.forEach((material) => {
+            Object.values(material).forEach((value) => {
+              if (value?.isTexture) value.dispose();
+            });
+            material.dispose();
+          });
+        }
+      });
+
+      renderer?.dispose();
+      scene = null;
+      renderer = null;
     })
 
     return {
